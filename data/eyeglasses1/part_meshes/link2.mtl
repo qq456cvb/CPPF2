@@ -1,0 +1,9 @@
+newmtl link2
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+illum 0
+map_Ka link2.jpg
+map_Kd link2.jpg
+map_Ks link2.jpg
+

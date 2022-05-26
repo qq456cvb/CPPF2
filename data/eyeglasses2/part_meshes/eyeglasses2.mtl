@@ -1,0 +1,9 @@
+newmtl eyeglasses2
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+illum 0
+map_Ka eyeglasses2.jpg
+map_Kd eyeglasses2.jpg
+map_Ks eyeglasses2.jpg
+
