@@ -1,0 +1,76 @@
+checkpoints/
+**/__pycache__
+data/nocs*
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+*.pyc
+
+# Model files
+*.params
+*.pt
+*.pth
+*.onnx
+*.ts
+
+# Temporary file
+*.*~
+
+# Directories
+Algorithm/6dpose/ssd-6d/model/
+Algorithm/6dpose/ssd-6d/data/
+Framework/Open3D/build/
+Framework/Open3D/py3env/
+Algorithm/detect3d/mmdetection3d
+Data/isaac/output/
+Data/generator_app_contrib/data/
+Data/generator_app_contrib/outputs/
+Tools/labelme/build/
+Tools/labelme/label_to_coco/config_files/
+!Tools/labelme/label_to_coco/config_files/template_config.py
+Common/mlflow_env
+
+# # Models & Data
+# !Models/**/info.list
+# Models/**/*
+
+# Local configurations and temporary files
+.venv/
+.idea/
+/**/.vscode/
+.env
+
+# macos generated files
+.DS_Store
+.DS_Store?
+*.swp
+._*
