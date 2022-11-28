@@ -11,7 +11,7 @@ A General and Accurate Sim2Real Object Pose Voting Method
 <a href="https://qq456cvb.github.io">Yang You</a>, Wenhao He, Michael Xu LIU, Weiming Wang, <a href="https://www.mvig.org/">Cewu Lu</a>
 <br>
 <br>
-<a href='#'>
+<a href='https://arxiv.org/abs/2211.13398'>
   <img src='https://img.shields.io/badge/Arxiv-PDF-orange?style=flat&logo=arxiv&logoColor=orange' alt='Paper PDF'>
 </a>
 <a href='#'>
