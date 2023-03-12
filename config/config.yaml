@@ -1,0 +1,33 @@
+res: 2e-3
+max_epoch: 200
+rot_num_bins: 36
+opt:
+  weight_decay: 0
+  lr: 1e-3
+
+defaults:
+  - _self_
+  - category: bowl
+
+ntuple: 5
+topk: 0.3
+up: [0, 1, 0]
+right: [1, 0, 0]
+front: [0, 0, 1]
+up_sym: False
+shapenet_root: /media/data_3/ShapeNetCore.v2
+
+eval:
+  angle_tol: 1.5
+  bmm_size: 100000
+  num_pairs: 100000
+  num_rots: 120
+  n_threads: 512
+
+hydra:
+  run:
+    dir: checkpoints/${cat_name}
+
+  sweep:
+    dir: checkpoints
+    subdir: ${cat_name}

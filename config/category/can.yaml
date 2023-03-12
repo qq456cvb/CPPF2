@@ -1,0 +1,5 @@
+# @package _global_
+res: 2e-3
+category: 4
+cat_name: can
+up_sym: True

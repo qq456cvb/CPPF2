@@ -1,0 +1,6 @@
+# @package _global_
+res: 2e-3
+category: 6
+cat_name: mug
+front: [1, 0, 0]
+right: [0, 0, 1]

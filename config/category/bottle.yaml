@@ -1,0 +1,5 @@
+# @package _global_
+res: 2e-3
+category: 1
+cat_name: bottle
+up_sym: True

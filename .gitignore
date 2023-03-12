@@ -1,6 +1,8 @@
-checkpoints/
+checkpoints
 **/__pycache__
 data/nocs*
+**/build
+NOCS
 
 # Prerequisites
 *.d

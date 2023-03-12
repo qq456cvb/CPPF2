@@ -1,0 +1,5 @@
+# @package _global_
+res: 2e-3
+category: 2
+cat_name: bowl
+up_sym: True
