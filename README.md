@@ -1,9 +1,7 @@
 <h1 align="center">
-Go Beyond Point Pairs: 
-
-A General and Accurate Sim2Real Object Pose Voting Method
-
- with Efficient Online Synthetic Training
+CPPF++: Uncertainty-Aware Sim2Real Object Pose Estimation 
+ 
+ by Vote Aggregation
 </h1>
 
 <div align="center">
@@ -24,9 +22,14 @@ A General and Accurate Sim2Real Object Pose Voting Method
 </h3>
 </div>
  
-Object pose estimation is an important topic in 3D vision. Though most current state-of-the-art method that trains on real-world pose annotations achieve good results, the cost of such real-world training data is too high. In this paper, we propose a novel method for sim-to-real pose estimation, which is effective on both instance-level and category-level settings. The proposed method is based on the point-pair voting scheme from CPPF to vote for object centers, orientations, and scales. Unlike naive point pairs, to enrich the context provided by each voting unit, we introduce $N$-point tuples to fuse features from more than two points. Besides, a novel vote selection module is leveraged in order to discard those `bad' votes. Experiments show that our proposed method greatly advances the performance on both instance-level and category-level scenarios. Our method further narrows the gap between sim-to-real and real-training methods by generating synthetic training data online efficiently, while all previous sim-to-real methods need to generate data offline, because of their complex background synthesizing or photo-realistic rendering.
+Object pose estimation constitutes a critical area within the domain of 3D vision. While contemporary state-of-the-art methods that leverage real-world pose annotations have demonstrated commendable performance, the procurement of such real-world training data incurs substantial costs. This paper focuses on a specific setting wherein only 3D CAD models are utilized as a priori knowledge, devoid of any background or clutter information. We introduce a novel method, CPPF++, designed for sim-to-real pose estimation. This method builds upon the foundational point-pair voting scheme of CPPF, reconceptualizing it through a probabilistic lens. To address the challenge of voting collision, we model voting uncertainty by estimating the probabilistic distribution of each point pair within the canonical space. This approach is further augmented by iterative noise filtering, employed to eradicate votes associated with backgrounds or clutters.
+Additionally, we enhance the context provided by each voting unit by introducing $N$-point tuples. In conjunction with this methodological contribution, we present a new category-level pose estimation dataset, DiversePose 300. This dataset is specifically crafted to facilitate a more rigorous evaluation of current state-of-the-art methods, encompassing a broader and more challenging array of real-world scenarios.
+Empirical results substantiate the efficacy of our proposed method, revealing a significant reduction in the disparity between simulation and real-world performance. 
+
+## Update Logs
+- Major update on methods (2023/09/06), check our updated Arxiv paper for more details. Now CPPF++ has a much better performance on both NOCS REAL275 and YCB-Video, **using only synthetic CAD models** for training. Code coming soon.
 
 ## Code
 v0.0.1: Initial release. Support training and evaluation on NOCS dataset. 
   - We follow the same data processing pipeline and dependency setup as [CPPF](https://github.com/qq456cvb/CPPF).
-  - Bug may exist, as the code is refactored with Pytorch Lightning. Performance may vary from the original implementation.
+  - This implementation is for the legacy method (arxiv v1).
