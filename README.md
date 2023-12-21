@@ -2,6 +2,8 @@
 CPPF++: Uncertainty-Aware Sim2Real Object Pose Estimation 
  
  by Vote Aggregation
+
+ (Under Review)
 </h1>
 
 <div align="center">
