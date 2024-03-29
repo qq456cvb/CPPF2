@@ -1,0 +1,40 @@
+batch_size: 1
+res: 0.01
+max_epoch: 200
+npoint_max: 10000
+regress_up: true
+regress_right: true
+regress_front: true
+tr_num_bins: 32
+rot_num_bins: 36
+opt:
+  weight_decay: 0
+  lr: 0.001
+up_sym: false
+right_sym: false
+cls_bins: true
+sp_factor: 0.01
+num_bins: 128
+num_more: 3
+topk: 0.3
+up:
+- 0
+- 1
+- 0
+right:
+- 1
+- 0
+- 0
+front:
+- 0
+- 0
+- 1
+fps: 128
+knn: 128
+shapenet_root: /home/neil/disk/ShapeNetCore.v2
+use_shot: true
+wandb:
+  entity: qq456cvb
+  project: cppf
+category: 5
+cat_name: laptop
