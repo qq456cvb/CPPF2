@@ -28,7 +28,7 @@ Object pose estimation constitutes a critical area within the domain of 3D visio
 Empirical evidence demonstrates that our method significantly surpasses previous sim-to-real approaches and achieves comparable or superior performance on novel datasets. 
 
 ## Update Logs
-- **Huge improvement** on methods (2024/03/28)! Check our updated Arxiv paper for more details (coming in 1~2 days). CPPF++ has a **much better performance on many datasets** in the wild, e.g., Wild6D, PhoCAL, DiversPose. See code for more details.
+- **Huge improvement** on methods (2024/03/28)! Check our updated Arxiv paper for more details (refresh your browser cache if not updated). CPPF++ has a **much better performance on many datasets** in the wild, e.g., Wild6D, PhoCAL, DiversPose. See code for more details.
 - Major update on methods (2023/09/06), check our updated Arxiv paper for more details. Now CPPF++ has a much better performance on both NOCS REAL275 and YCB-Video, **using only synthetic CAD models** for training.
 
 ## Code
