@@ -54,10 +54,7 @@ class BeyondCPPF(pl.LightningModule):
             *[ResLayer(fcs_shot[i], fcs_shot[i + 1], False) for i in range(len(fcs_shot) - 1)]
         )
         
-        if not hasattr(cfg, 'use_dist'):
-            cfg.use_dist = False
-        
-        input_dim = len(list(combinations(np.arange(cfg.num_more + 2), 2))) * (2 if cfg.use_dist else 4) + (cfg.num_more + 2) * 64
+        input_dim = len(list(combinations(np.arange(cfg.num_more + 2), 2))) * 4 + (cfg.num_more + 2) * 64
         output_dim = 256  # 3 for scale
         fcs = [input_dim] + [128] * 5 + [output_dim]
         
@@ -80,10 +77,8 @@ class BeyondCPPF(pl.LightningModule):
         normal_inputs = torch.cat([torch.max(torch.sum(normal[point_idxs_all[:, i]] * normal[point_idxs_all[:, j]], dim=-1, keepdim=True),
                             torch.sum(-normal[point_idxs_all[:, i]] * normal[point_idxs_all[:, j]], dim=-1, keepdim=True))
                     for (i, j) in combinations(np.arange(point_idxs_all.shape[-1]), 2)], -1)
-        if self.cfg.use_dist:
-            coord_inputs = torch.cat([torch.norm(points[point_idxs_all[:, i]] - points[point_idxs_all[:, j]], dim=-1, keepdim=True) for (i, j) in combinations(np.arange(point_idxs_all.shape[-1]), 2)], -1)
-        else:
-            coord_inputs = torch.cat([points[point_idxs_all[:, i]] - points[point_idxs_all[:, j]] for (i, j) in combinations(np.arange(point_idxs_all.shape[-1]), 2)], -1)
+
+        coord_inputs = torch.cat([points[point_idxs_all[:, i]] - points[point_idxs_all[:, j]] for (i, j) in combinations(np.arange(point_idxs_all.shape[-1]), 2)], -1)
         inputs = torch.cat([coord_inputs, normal_inputs, shot_inputs], -1)
         return inputs
 
