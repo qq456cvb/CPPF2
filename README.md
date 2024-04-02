@@ -28,8 +28,10 @@ Object pose estimation constitutes a critical area within the domain of 3D visio
 Empirical evidence demonstrates that our method significantly surpasses previous sim-to-real approaches and achieves comparable or superior performance on novel datasets. 
 
 ## Update Logs
-- **Huge improvement** on methods (2024/03/28)! Check our updated Arxiv paper for more details. CPPF++ has a **much better performance on many datasets** in the wild, e.g., Wild6D, PhoCAL, DiversPose. See code for more details.
-- Major update on methods (2023/09/06), check our updated Arxiv paper for more details. Now CPPF++ has a much better performance on both NOCS REAL275 and YCB-Video, **using only synthetic CAD models** for training.
+- 2024/04/01 - pretrained models are under `ckpts`!
+- Thanks <a href='https://github.com/dvirginz'>@dvirginz</a> for providing the `Dockerfile` to build `shot.cpp`!
+- 2024/03/28 - **Huge improvement** on methods! Check our updated Arxiv paper for more details (refresh your browser cache if not updated). CPPF++ has a **much better performance on many datasets** in the wild, e.g., Wild6D, PhoCAL, DiversPose. See code for more details.
+- 2023/09/06 - Major update on methods, check our updated Arxiv paper for more details. Now CPPF++ has a much better performance on both NOCS REAL275 and YCB-Video, **using only synthetic CAD models** for training.
 
 ## Code
 - v1.0.0: Major improvement in the method!
@@ -37,6 +39,7 @@ Empirical evidence demonstrates that our method significantly surpasses previous
   - To train the DINO model, first run `dataset.py` to dump the training data (DINO forward will take some time and data cannot be generated online). Then run `train_dino.py`.
   - To train the SHOT model, directly run `train_shot.py`.
   - To test on NOCS REAL275, run `eval.py`. You will need the Mask-RCNN's mask from [SAR-Net](https://github.com/hetolin/SAR-Net).
+  - You can also use `Dockerfile` to build `shot.cpp`.
 - v0.0.1: Initial release. Support training and evaluation on NOCS dataset. 
   - We follow the same data processing pipeline and dependency setup as [CPPF](https://github.com/qq456cvb/CPPF).
   - This implementation is for the legacy method (arxiv v1).
