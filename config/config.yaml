@@ -16,6 +16,8 @@ right: [1, 0, 0]
 front: [0, 0, 1]
 up_sym: False
 shapenet_root: /media/data_3/ShapeNetCore.v2
+num_more: 3
+
 
 eval:
   angle_tol: 1.5
