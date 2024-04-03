@@ -20,14 +20,15 @@ py::array_t<float> estimate_normal(py::array_t<float> pc, double normal_r)
 		// std::cout << cloud->points[i] << std::endl;
 		pc_ptr += 3;
     }
-	pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+	pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>());
 
 	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normalEstimation;
 	normalEstimation.setInputCloud(cloud);
-	normalEstimation.setRadiusSearch(normal_r);
 	// normalEstimation.setKSearch(40);
-	pcl::search::KdTree<pcl::PointXYZ>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZ>);
+	pcl::search::KdTree<pcl::PointXYZ>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZ>());
 	normalEstimation.setSearchMethod(kdtree);
+
+	normalEstimation.setRadiusSearch(normal_r);
 	normalEstimation.compute(*normals);
 
 	auto result = py::array_t<float>(normals->points.size() * 3);
@@ -41,7 +42,7 @@ py::array_t<float> estimate_normal(py::array_t<float> pc, double normal_r)
 }
 
 
-py::array_t<float> compute(py::array_t<float> pc, double normal_r, double shot_r)
+std::vector<py::array_t<float>> compute(py::array_t<float> pc, double normal_r, double shot_r)
 {
 	// Object for storing the point cloud.
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
@@ -50,7 +51,6 @@ py::array_t<float> compute(py::array_t<float> pc, double normal_r, double shot_r
 	for (int i = 0; i < pc.shape(0); ++i)
     {
 		std::copy(pc_ptr, pc_ptr + 3, &cloud->points[i].data[0]);
-		// std::cout << cloud->points[i] << std::endl;
 		pc_ptr += 3;
     }
 
@@ -71,6 +71,13 @@ py::array_t<float> compute(py::array_t<float> pc, double normal_r, double shot_r
 	normalEstimation.setSearchMethod(kdtree);
 	normalEstimation.compute(*normals);
 
+	auto result_normal = py::array_t<float>(normals->points.size() * 3);
+    auto buf_normal = result_normal.request();
+    float *ptr_normal = (float*)buf_normal.ptr;
+	for (int i = 0; i < normals->points.size(); ++i)
+    {
+		std::copy(&normals->points[i].normal[0], &normals->points[i].normal[3], &ptr_normal[i * 3]);
+    }
 	// SHOT estimation object.
 	pcl::SHOTEstimation<pcl::PointXYZ, pcl::Normal, pcl::SHOT352> shot;
 	shot.setInputCloud(cloud);
@@ -89,7 +96,7 @@ py::array_t<float> compute(py::array_t<float> pc, double normal_r, double shot_r
     {
 		std::copy(&descriptors->points[i].descriptor[0], &descriptors->points[i].descriptor[352], &ptr[i * 352]);
     }
-    return result;
+    return {result, result_normal};
 }
 
 py::array_t<float> compute_color(py::array_t<float> pc, py::array_t<float> pc_color, double normal_r, double shot_r)
