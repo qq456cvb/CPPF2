@@ -17,7 +17,7 @@ from scipy.spatial.transform import Rotation as R
 from itertools import combinations
 from scipy.stats import special_ortho_group
 import open3d as o3d
-import MinkowskiEngine as ME
+from utils.util import downsample
 
 import logging
 logger = logging.getLogger("OpenGL.arrays.arraydatatype")
@@ -267,7 +267,7 @@ class ShapeNetDirectDataset(torch.utils.data.Dataset):
         bound = bounds[1] - bounds[0]
         bound[[0, 2]] = bound[[2, 0]]
         
-        _, indices = ME.utils.sparse_quantize(np.ascontiguousarray(pc), return_index=True, quantization_size=self.cfg.res)
+        indices = downsample(pc, self.cfg.res)
         pc = pc[indices]
         idxs = idxs[indices]
         if pc.shape[0] < 100:
@@ -364,7 +364,6 @@ class ShapeNetExportDataset(torch.utils.data.Dataset):
         
 from tqdm import tqdm
 from PIL import Image
-from YCB.model_dense import DINOV2
 import pickle
 
 def dump_data(full_rot=False):

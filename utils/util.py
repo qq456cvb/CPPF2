@@ -23,8 +23,6 @@ import time
 
 import torch
 
-from utils.aligning import estimateSimilarityTransform
-
 sys.path.append('./cocoapi/PythonAPI')
 from pycocotools.cocoeval import COCOeval
 from pycocotools import mask as maskUtils
@@ -36,8 +34,17 @@ from utils.iou import IoU
 import albumentations as A
 from scipy.stats import special_ortho_group
 from multiprocessing import Pool
+import open3d as o3d
 
 
+def downsample(pc, res):
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(pc)
+    _, _, idxs = pcd.voxel_down_sample_and_trace(res, pcd.get_min_bound(), pcd.get_max_bound())
+    res = []
+    for idx in idxs:
+        res.append(np.random.choice(np.array(idx)))
+    return np.array(res)
 
 def draw_pose_legacy(img, intrinsics, rot, center, scale, color=(255, 0, 0)):
     mat = np.eye(4)
@@ -2948,177 +2955,6 @@ def backproject(depth, intrinsics, instance_mask):
 
     return pts, idxs
 
-
-def align(class_ids, masks, coords, depth, intrinsics, synset_names, image_path, save_path=None, if_norm=False, with_scale=True, verbose=False):
-    num_instances = len(class_ids)
-    error_messages = ''
-    elapses = []
-    if num_instances == 0:
-        return np.zeros((0, 4, 4)), np.ones((0, 3)), error_messages, elapses
-
-    RTs = np.zeros((num_instances, 4, 4))
-    bbox_scales = np.ones((num_instances, 3))
-    
-    for i in range(num_instances):
-        class_name = synset_names[class_ids[i]]
-        class_id = class_ids[i]
-        mask = masks[:, :, i]
-        coord = coords[:, :, i, :]
-        abs_coord_pts = np.abs(coord[mask==1] - 0.5)
-        bbox_scales[i, :] = 2*np.amax(abs_coord_pts, axis=0)
-
-        pts, idxs = backproject(depth, intrinsics, mask)
-        coord_pts = coord[idxs[0], idxs[1], :] - 0.5
-
-        if if_norm:
-            scale = np.linalg.norm(bbox_scales[i, :])
-            bbox_scales[i, :] /= scale
-            coord_pts /= scale
-
-        try:
-            start = time.time()
-            
-            scales, rotation, translation, outtransform = estimateSimilarityTransform(coord_pts, pts, False)
-
-            aligned_RT = np.zeros((4, 4), dtype=np.float32) 
-            if with_scale:
-                aligned_RT[:3, :3] = np.diag(scales) / 1000 @ rotation.transpose()
-            else:
-                aligned_RT[:3, :3] = rotation.transpose()
-            aligned_RT[:3, 3] = translation / 1000
-            aligned_RT[3, 3] = 1
-            
-            if save_path is not None:
-                coord_pts_rotated = aligned_RT[:3, :3] @ coord_pts.transpose() + aligned_RT[:3, 3:]
-                coord_pts_rotated = coord_pts_rotated.transpose()
-                np.savetxt(save_path+'_{}_{}_depth_pts.txt'.format(i, class_name), pts)
-                np.savetxt(save_path+'_{}_{}_coord_pts.txt'.format(i, class_name), coord_pts)
-                np.savetxt(save_path+'_{}_{}_coord_pts_aligned.txt'.format(i, class_name), coord_pts_rotated)
-
-            if verbose:
-                print('Mask ID: ', i)
-                print('Scale: ', scales/1000)
-                print('Rotation: ', rotation.transpose())
-                print('Translation: ', translation/1000)
-
-            elapsed = time.time() - start
-            # print('elapsed: ', elapsed)
-            elapses.append(elapsed)
-        
-
-        except Exception as e:
-            message = '[ Error ] aligning instance {} in {} fails. Message: {}.'.format(synset_names[class_id], image_path, str(e))
-            print(message)
-            error_messages += message + '\n'
-            aligned_RT = np.identity(4, dtype=np.float32) 
-
-        # print('Estimation takes {:03f}s.'.format(time.time() - start))
-        # from camera world to computer vision frame
-        z_180_RT = np.zeros((4, 4), dtype=np.float32)
-        z_180_RT[:3, :3] = np.diag([-1, -1, 1])
-        z_180_RT[3, 3] = 1
-
-        RTs[i, :, :] = z_180_RT @ aligned_RT 
-
-    return RTs, bbox_scales, error_messages, elapses
-
-
-def align_ICP(class_ids, masks, depth, intrinsics, synset_names, image_path, save_path=None, if_norm=False, verbose=False):
-    num_instances = len(class_ids)
-    error_messages = ''
-
-    print(intrinsics)
-    if num_instances == 0:
-        return np.zeros((0, 4, 4)), np.ones((0, 3)), error_messages
-
-    RTs = np.zeros((num_instances, 4, 4))
-    bbox_scales = np.ones((num_instances, 3))
-
-    def rotation_y_matrix(theta):
-            rotation_matrix =  \
-                    np.array([ np.cos(theta), 0,  np.sin(theta),
-                                 0,           1,  0,
-                              -np.sin(theta), 0,  np.cos(theta)])
-            rotation_matrix = np.reshape(rotation_matrix, (3, 3))
-            return rotation_matrix
-
-    for i in range(num_instances):
-        #class_name = synset_names[class_ids[i]]
-        class_id = class_ids[i]
-        mask = masks[:, :, i]
-        # coord = coords[:, :, i, :]
-        # abs_coord_pts = np.abs(coord[mask==1] - 0.5)
-        # bbox_scales[i, :] = 2*np.amax(abs_coord_pts, axis=0)
-
-        depth_pts, idxs = backproject(depth, intrinsics, mask)
-        # coord_pts = coord[idxs[0], idxs[1], :] - 0.5
-
-        # if if_norm:
-        #     scale = np.linalg.norm(bbox_scales[i, :])
-        #     bbox_scales[i, :] /= scale
-        #     coord_pts /= scale
-        
-        glob_paths = '/home/hewang/Projects/CoordRCNN/data/pts/real_test/{}*.txt'.format(synset_names[class_ids[i]])
-        print(glob_paths)
-        shape_paths = glob.glob(glob_paths)
-        print(shape_paths)
-
-
-        random.shuffle(shape_paths)
-        shape_pts = np.loadtxt(shape_paths[0])
-        print(shape_pts.shape)
-        bbox_scales[i, :] = np.array([1, 1, 1])
-        
-
-
-        # depth_pts = rotation_y_matrix(0.01)@shape_pts.transpose() + 0.01
-        # depth_pts = depth_pts.transpose()
-
-        #try:
-        if True:
-            scales, rotation, translation = ICP.doICP(shape_pts,
-                                                      depth_pts, 
-                                                      threshold=5, isViz=False)
-
-            scales = np.amax(shape_pts, axis=0) - np.amin(shape_pts, axis=0) 
-            # scales, rotation, translation, outtransform = estimateSimilarityTransform(coord_pts, pts, False)
-            #scales = np.diag(bbox_scales[i, :])
-            aligned_RT = np.zeros((4, 4), dtype=np.float32) 
-            aligned_RT[:3, :3] = np.diag(scales)@rotation#.transpose()
-            aligned_RT[:3, 3] = translation / 1000
-            aligned_RT[3, 3] = 1
-            
-            #bbox_scales[i, :] = scales@bbox_scales[i, :]/1000
-
-            if save_path is not None:
-                coord_pts_rotated = aligned_RT[:3, :3] @ coord_pts.transpose() + aligned_RT[:3, 3:]
-                coord_pts_rotated = coord_pts_rotated.transpose()
-                np.savetxt(save_path+'_{}_{}_depth_pts.txt'.format(i, class_name), pts)
-                np.savetxt(save_path+'_{}_{}_coord_pts.txt'.format(i, class_name), coord_pts)
-                np.savetxt(save_path+'_{}_{}_coord_pts_aligned.txt'.format(i, class_name), coord_pts_rotated)
-
-            if verbose:
-                print('Mask ID: ', i)
-                print('Scale: ', scales)
-                print('Rotation: ', rotation)
-                print('Translation: ', translation)
-        
-
-        # except Exception as e:
-        #     message = '[ Error ] aligning instance {} in {} fails. Message: {}.'.format(synset_names[class_id], image_path, str(e))
-        #     print(message)
-        #     error_messages += message + '\n'
-        #     aligned_RT = np.identity(4, dtype=np.float32) 
-
-        # print('Estimation takes {:03f}s.'.format(time.time() - start))
-        # from camera world to computer vision frame
-        z_180_RT = np.zeros((4, 4), dtype=np.float32)
-        z_180_RT[:3, :3] = np.diag([-1, -1, 1])
-        z_180_RT[3, 3] = 1
-
-        RTs[i, :, :] = z_180_RT @ aligned_RT 
-
-    return RTs, bbox_scales, error_messages
 
 def work(num_iou_thres, num_degree_thres, num_shift_thres, num_classes, 
          synset_names, iou_thres_list, degree_thres_list, shift_thres_list, use_matches_for_pose,

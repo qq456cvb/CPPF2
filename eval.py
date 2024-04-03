@@ -2,14 +2,13 @@ from glob import glob
 import json
 from pathlib import Path
 import omegaconf
-from utils.util import backproject, dilate_mask, fibonacci_sphere, real2prob, prob2real, calculate_2d_projections, draw, get_3d_bbox, process_data, transform_coordinates_3d, compute_degree_cm_mAP
+from utils.util import downsample, backproject, dilate_mask, fibonacci_sphere, real2prob, prob2real, calculate_2d_projections, draw, get_3d_bbox, process_data, transform_coordinates_3d, compute_degree_cm_mAP
 import torch
 from dataset import id2category
 import numpy as np
 import torch.optim as optim
 import torch.nn as nn
 from tqdm import tqdm
-import MinkowskiEngine as ME
 import cv2
 import pickle
 import os
@@ -190,7 +189,7 @@ def main(
             pc = pc.astype(np.float32)
             # print(pc.shape, cfg.res)
             # vis.scatter(pc, win=8, opts=dict(markersize=3))
-            indices = ME.utils.sparse_quantize(np.ascontiguousarray(pc), return_index=True, quantization_size=cfg.res)[1]
+            indices = downsample(pc, cfg.res)
             pc = pc[indices]
             idxs = idxs[indices]
             if pc.shape[0] > 50000:
