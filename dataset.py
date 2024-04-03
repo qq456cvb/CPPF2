@@ -56,6 +56,8 @@ def interpolate_features(descriptors, pts, strides=8, normalize=True):
     # You might want to squeeze or reshape as necessary.
     interpolated_features = interpolated_features.squeeze(-2)
     
+    return F.normalize(interpolated_features, dim=1) if normalize else interpolated_features
+    
     
 class DINOV2(nn.Module):
     def __init__(self, stride=4):
