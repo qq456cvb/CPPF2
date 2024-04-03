@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 import numpy as np
-from utils.util import align, backproject, real2prob, map_sym, map_sym_discrete
+from utils.util import backproject, real2prob, map_sym, map_sym_discrete
 import hydra
 import torch
 import omegaconf
