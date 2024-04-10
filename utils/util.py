@@ -2205,7 +2205,7 @@ def load_mesh(mesh_path, is_save=False, is_normalized=False, is_flipped=False):
     return vertices, faces
 
 
-def draw(img, imgpts, axes, color, size):
+def draw(img, imgpts, axes, color, size=3):
     imgpts = np.int32(imgpts).reshape(-1, 2)
 
 
