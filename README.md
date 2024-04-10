@@ -28,6 +28,7 @@ Object pose estimation constitutes a critical area within the domain of 3D visio
 Empirical evidence demonstrates that our method significantly surpasses previous sim-to-real approaches and achieves comparable or superior performance on novel datasets. 
 
 ## Update Logs
+- 2024/04/10 - Add data processing scripts to convert PhoCAL or Wild6D into REAL275's format.
 - 2024/04/01 - pretrained models are under `ckpts`!
 - Thanks <a href='https://github.com/dvirginz'>@dvirginz</a> for providing the `Dockerfile` to build `shot.cpp`!
 - 2024/03/28 - **Huge improvement** on methods! Check our updated Arxiv paper for more details (refresh your browser cache if not updated). CPPF++ has a **much better performance on many datasets** in the wild, e.g., Wild6D, PhoCAL, DiversPose. See code for more details.
