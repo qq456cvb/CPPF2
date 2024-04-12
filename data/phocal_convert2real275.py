@@ -6,8 +6,6 @@ import numpy as np
 import pickle as pkl
 from tqdm import tqdm
 import multiprocessing
-from category_nocs.PhoCAL.utils_phocal.util import backproject_np
-from category_nocs.PhoCAL.utils_phocal.align_utils import estimateSimilarityTransform
 
 
 category2id = {
