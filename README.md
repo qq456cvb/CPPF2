@@ -3,7 +3,7 @@ CPPF++: Uncertainty-Aware Sim2Real Object Pose Estimation
  
  by Vote Aggregation
 
- (Under Review)
+ (Accepted to TPAMI 2024)
 </h1>
 
 <div align="center">
@@ -31,6 +31,7 @@ Empirical evidence demonstrates that our method significantly surpasses previous
 ![teaser](./teaser.gif)
 
 ## Update Logs
+- 2024/06/15 - Our paper is accepted to IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI)!
 - 2024/04/10 - Add data processing scripts to convert PhoCAL or Wild6D into REAL275's format.
 - 2024/04/01 - pretrained models are under `ckpts`!
 - Thanks <a href='https://github.com/dvirginz'>@dvirginz</a> for providing the `Dockerfile` to build `shot.cpp`!
