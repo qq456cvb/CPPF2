@@ -48,3 +48,16 @@ Empirical evidence demonstrates that our method significantly surpasses previous
 - v0.0.1: Initial release. Support training and evaluation on NOCS dataset. 
   - We follow the same data processing pipeline and dependency setup as [CPPF](https://github.com/qq456cvb/CPPF).
   - This implementation is for the legacy method (arxiv v1).
+
+## Training with your own data
+To train with your own data, you need to first preprocess and export DINO and SHOT features into `pkl` (pickle) files for later training (this is to speed up the training process as computing these features are sometimes slow). 
+
+To do so, you need to modify the data path and model names to yours on L192 and L212 of class `ShapeNetDirectDataset` in `dataset.py`, and then use `dump_data` function to dump the data. The parameter `full_rot` indicates whether to train with full SO(3) random rotation sampling as in DiversePose 300 or just a subset of rotations (very small in-plane rotation, positive elevations) as in NOCS REAL275.
+
+Since our method uses an ensemble from both DINO and SHOT features, after exporting the training data, you will need to run both `train_dino.py` and `train_shot.py` to train two separate models, one for visual clues and the other for geometric clues. Again, make sure the path in class `ShapeNetExportDataset` is consistent, and you may want to delete the lines of `blacklists`.
+
+To evaluate your trained model, we provide a sample `demo.py` file to process a video stream of RGB-D frames. Open an issue if you have any questions and we are glad to help!
+
+
+## Evaluation on NOCS REAL275 with pretrained checkpoints
+Please run `eval.py` directly.

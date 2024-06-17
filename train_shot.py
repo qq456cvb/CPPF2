@@ -6,7 +6,7 @@ import numpy as np
 from itertools import combinations
 import torch.nn.functional as F
 import hydra
-from dataset import ShapeNetDirectDataset
+from dataset import ShapeNetExportDataset
 import torch.nn as nn
 import time
 from multiprocessing import cpu_count
@@ -84,8 +84,8 @@ class BeyondCPPF(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         pc_canon = batch['pc_canon'][0]
-        point_idxs_all = batch['point_idxs_all'][0]
         points = batch['pc'][0]
+        point_idxs_all = torch.from_numpy(np.random.randint(0, points.shape[0], (10000, self.cfg.num_more + 2))).long().cuda()
         shot_feat = self.shot_encoder(batch['shot'][0])
         # shot_feat.fill_(0)
         normal = batch['normal'][0]
@@ -145,7 +145,7 @@ def train(cfg):
     def init_fn(i):
         return np.random.seed(round(time.time() * 1000) % (2 ** 32) +  i)
 
-    ds = ShapeNetDirectDataset(cfg)
+    ds = ShapeNetExportDataset(cfg)
     df = torch.utils.data.DataLoader(ds, pin_memory=True, batch_size=1, shuffle=True, num_workers=cpu_count() // 2, worker_init_fn=init_fn)
     trainer.fit(pl_module, df)
     
