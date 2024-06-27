@@ -12,7 +12,7 @@ from tqdm import tqdm
 import cv2
 import pickle
 import os
-from src_shot.build import shot
+from src_shot.build.Release import shot
 from train_dino import vote_center, vote_rotation, generate_target_pairs
 from train_dino import BeyondCPPF as BeyondCPPFDINO
 from train_shot import BeyondCPPF as BeyondCPPFSHOT
@@ -22,9 +22,10 @@ import torch_scatter
 from dataset import DINOV2
 import matplotlib
 from FastSAM.fastsam import FastSAM, FastSAMPrompt
+from torchvision.models.detection import maskrcnn_resnet50_fpn
+from torchvision.transforms import functional as F
 cm = matplotlib.colormaps['jet']
-
-from visdom import Visdom
+    
 
 def visualize(vis, *pcs, **opts):
     vis_pc = np.concatenate(pcs)
@@ -76,10 +77,8 @@ def main(
     sphere_pts = np.array(fibonacci_sphere(num_samples), dtype=np.float32)
     bmm_size = 100000
     
-    
-    # replace with your own data
+    # change the path to your own data
     intrinsics = np.load('D:\\record3d\\data\\mug\\intrinsics.npy')
-    vis = Visdom()
 
     cat_name = 'mug'
     root = f'{dino_path}/{cat_name}-num_more-3'
@@ -89,22 +88,33 @@ def main(
     root = f'{shot_path}/{cat_name}-num_more-3'
     cfg = omegaconf.OmegaConf.load(f"{root}/.hydra/config.yaml")
     shot_model = BeyondCPPFSHOT.load_from_checkpoint(Path(root) / 'lightning_logs/version_0/checkpoints/last.ckpt', cfg=cfg).cuda().eval()
-    detection_model = FastSAM('FastSAM.pt')
     
-    for rgb_fn in Path('D:\\record3d\\data\\mug\\rgb').glob('*.png'):
+    det_model = maskrcnn_resnet50_fpn(pretrained=True).eval().cuda()
+    for rgb_fn in tqdm(list(sorted(Path('D:\\record3d\\data\\mug\\rgb').glob('*.png')))[410:700]):
         rgb = cv2.imread(str(rgb_fn))[..., ::-1]
-        depth = cv2.imread(str(rgb_fn).replace('rgb', 'depth'), cv2.IMREAD_UNCHANGED)
+        depth = np.load(str(rgb_fn).replace('rgb', 'depth').replace('png', 'npy'))
         draw_image_bbox = rgb.copy()
         
-        everything_results = detection_model(rgb, device='cuda', retina_masks=True, imgsz=1024, conf=0.4, iou=0.9,)
-        prompt_process = FastSAMPrompt(rgb, everything_results, device='cuda')
-        ann = prompt_process.text_prompt(text='a mug')
+        # everything_results = det_model(str(rgb_fn), device='cuda', retina_masks=True, imgsz=1024, conf=0.4, iou=0.9,)
+        # prompt_process = FastSAMPrompt(str(rgb_fn), everything_results, device='cuda')
+        # ann = prompt_process.text_prompt(text='the mug held by hand')
+        # prompt_process.plot(annotations=ann, output_path='./output.jpg')
         
-        prompt_process.plot(annotations=ann, output_path='./det.jpg')
-        cv2.imshow('2D detection', cv2.imread('./det.jpg'))
-        cv2.waitKey(30)
-            
-        mask = masks[:, :, i]
+        image_tensor = F.to_tensor(Image.open(str(rgb_fn))).unsqueeze(0).cuda()
+        prediction = det_model(image_tensor)
+        
+        mug_class_id = 47  # This is an example class ID, it might be different
+
+        for i, class_id in enumerate(prediction[0]['labels']):
+            if class_id == mug_class_id:
+                mask = prediction[0]['masks'][i, 0]
+                mask = (mask > 0.2).cpu().numpy()  # Convert to boolean format
+                break
+        
+        mask_show = rgb.copy()
+        mask_show[~mask] = 0
+        # cv2.imshow('image', mask_show[..., ::-1])
+        # cv2.waitKey(30)
         
         # mask = cv2.dilate(mask.astype(np.uint8), np.ones((3, 3), np.uint8), iterations=2).astype(bool)
         
@@ -116,7 +126,7 @@ def main(
         # vis.image(np.moveaxis(rgb_masked, [0, 1, 2], [1, 2, 0]), win=1, opts=dict(width=640, height=480))
 
         # depth[depth > 0] += np.random.uniform(-2e-3, 2e-3, depth[depth > 0].shape)
-        pc, idxs = backproject(depth / 1000., intrinsics, mask)
+        pc, idxs = backproject(depth, intrinsics, mask)
         idxs = np.stack(idxs, -1)  # K x 2
         pc[:, 0] = -pc[:, 0]
         pc[:, 1] = -pc[:, 1]
@@ -136,6 +146,7 @@ def main(
         
         kp = np.flip(idxs, -1)
         kp_local = (np.linalg.inv(transform) @ np.concatenate([kp, np.ones((kp.shape[0], 1))], -1).T).T[:, :2]
+        
         desc = desc_model(torch.from_numpy(rgb_local).cuda().float().permute(2, 0, 1) / 255., torch.from_numpy(kp_local).float().cuda()).cpu().numpy()
         
         point_idxs_all = np.random.randint(0, pc.shape[0], (num_pairs, 2 + cfg.num_more))
@@ -150,6 +161,8 @@ def main(
         normal[np.isnan(normal)] = 0
         
         best_loss, best_idx = np.inf, 0
+        best_RT = np.eye(4)
+        best_scale = np.zeros((3,))
         for model_idx, model in enumerate([dino_model, shot_model]):
             if model_idx == 0:
                 pred_cls, pred_scales = model(torch.from_numpy(pc).float().cuda(), torch.from_numpy(desc).float().cuda(), torch.from_numpy(point_idxs_all).long().cuda())
@@ -235,10 +248,6 @@ def main(
             R_est[:3, up_loc] = preds_up
             R_est[:3, right_loc] = preds_right
             
-            gt_RT = gt_RTs[np.linalg.norm(gt_RTs[:, :3, -1] - T_est, axis=-1).argmin()]
-            # pair_wt = F.normalize(1. / imp_pair_wt, p=1, dim=0)
-            # pred_scale = torch.sum(pred_scales * pair_wt[:, None], 0).cpu().numpy()
-            
             if model_idx == 0:
                 pred_scale = torch.median(pred_scales, 0)[0].cpu().numpy()
                 pred_scale_norm = np.linalg.norm(pred_scale)
@@ -265,24 +274,12 @@ def main(
                         pc_canon = (pc_cuda - opt_trans) @ rot
                         # import pdb; pdb.set_trace()
                         loss = torch.abs(pc_canon[point_idxs_all_filtered[:, :2]] - pred_pairs_scaled[pairs_mask])
-                        if id2category[cls_id] in ['can', 'bottle', 'bowl']:
-                            loss = loss[..., 1]
                         loss = loss.mean()
                         loss.backward()
                         # opt_trans.grad = opt_trans.grad * 1e-2
                         delta_rot.grad = delta_rot.grad / 180 * np.pi
                         opt.step()
                         # tq.set_description(f'loss: {loss.item():.4f}')
-                        
-                
-                if cls_id in gt_cls_ids:
-                    if id2category[cls_id] in ['can', 'bottle', 'bowl']:
-                        rot_err = np.arccos(np.dot(R_est[:3, 1], gt_RT[:3, 1] / np.cbrt(np.linalg.det(gt_RT[:3, :3])))) / np.pi * 180
-                    else:
-                        rot_err = np.arccos((np.trace(R_est[:3, :3].T @ gt_RT[:3, :3] / np.cbrt(np.linalg.det(gt_RT[:3, :3]))) - 1.) / 2) / np.pi * 180
-                    if debug:
-                        print("rot err: ", rot_err)
-                        print('tr err', np.linalg.norm(RTs[i][:3, -1] - gt_RT[:3, -1]))
                 
                 T_est = opt_trans.detach().cpu().numpy()
                 R_est = (SO3.InitFromVec(delta_rot).matrix()[:3, :3] @ torch.from_numpy(R_est).float().cuda()).detach().cpu().numpy()
@@ -290,29 +287,32 @@ def main(
             
             pc_canon = (pc - T_est) @ R_est / pred_scale_norm
             loss = np.abs(pc_canon[point_idxs_all_filtered[:, :2]] - pred_pairs[pairs_mask].cpu().numpy())
-            if id2category[cls_id] in ['can', 'bottle', 'bowl']:
-                loss = loss[..., 1]
             loss = np.clip(loss, 0, 0.1)
             loss = loss.mean()
             
             if loss < best_loss and ((geo_branch and model_idx == 0) or (visual_branch and model_idx == 1)):
                 best_loss = loss
                 best_idx = model_idx
-                RTs[i][:3, :3] = R_est * pred_scale_norm
-                RTs[i][:3, -1] = T_est
-                scales[i] = pred_scale / pred_scale_norm
+                best_RT[:3, :3] = R_est * pred_scale_norm
+                best_RT[:3, -1] = T_est
+                best_scale = pred_scale / pred_scale_norm
     
         xyz_axis = 0.3 * np.array([[0, 0, 0], [0, 0, 1], [0, 1, 0], [1, 0, 0]]).transpose()
-        transformed_axes = transform_coordinates_3d(xyz_axis, RTs[i])
+        transformed_axes = transform_coordinates_3d(xyz_axis, best_RT)
         projected_axes = calculate_2d_projections(transformed_axes, intrinsics)
 
-        bbox_3d = get_3d_bbox(scales[i, :], 0)
-        transformed_bbox_3d = transform_coordinates_3d(bbox_3d, RTs[i])
+        bbox_3d = get_3d_bbox(best_scale, 0)
+        transformed_bbox_3d = transform_coordinates_3d(bbox_3d, best_RT)
         projected_bbox = calculate_2d_projections(transformed_bbox_3d, intrinsics)
         draw_image_bbox = draw(draw_image_bbox, projected_bbox, projected_axes, (255, 0, 0))
-    
-        cv2.imshow('pose estimation', draw_image_bbox)
-        cv2.waitKey(0)
+        
+        cv2.imwrite('predictions/{}.png'.format(rgb_fn.stem), draw_image_bbox[..., ::-1])
+        
+        # cv2.imshow('prediction', draw_image_bbox[..., ::-1])
+        # cv2.waitKey(0)
+        
+        # vis.image(np.moveaxis(draw_image_bbox, [0, 1, 2], [1, 2, 0]), win=2)
+        # import pdb; pdb.set_trace()
 
 from fire import Fire   
 if __name__ == '__main__':

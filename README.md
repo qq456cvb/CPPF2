@@ -3,7 +3,7 @@ CPPF++: Uncertainty-Aware Sim2Real Object Pose Estimation
  
  by Vote Aggregation
 
- (Under Review)
+ (Accepted to TPAMI 2024)
 </h1>
 
 <div align="center">
@@ -31,6 +31,8 @@ Empirical evidence demonstrates that our method significantly surpasses previous
 ![teaser](./teaser.gif)
 
 ## Update Logs
+- 2024/06/16 - Uploaded code to reproduce our demo.
+- 2024/06/15 - Our paper is accepted to IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI)!
 - 2024/04/10 - Add data processing scripts to convert PhoCAL or Wild6D into REAL275's format.
 - 2024/04/01 - pretrained models are under `ckpts`!
 - Thanks <a href='https://github.com/dvirginz'>@dvirginz</a> for providing the `Dockerfile` to build `shot.cpp`!
@@ -47,3 +49,16 @@ Empirical evidence demonstrates that our method significantly surpasses previous
 - v0.0.1: Initial release. Support training and evaluation on NOCS dataset. 
   - We follow the same data processing pipeline and dependency setup as [CPPF](https://github.com/qq456cvb/CPPF).
   - This implementation is for the legacy method (arxiv v1).
+
+## Training with your own data
+To train with your own data, you need to first preprocess and export DINO and SHOT features into `pkl` (pickle) files for later training (this is to speed up the training process as computing these features are sometimes slow). 
+
+To do so, you need to modify the data path and model names to yours on L192 and L212 of class `ShapeNetDirectDataset` in `dataset.py`, and then use `dump_data` function to dump the data. Also, remove transformations related to `flip2nocs` (it was used in NOCS REAL275 evaluation because ShapeNet objects have a different coordinate frame with NOCS objects). Caveat: we assume all the meshes are diagonally normalized (diagonal of bbox set to 1) and use a predefined range of scales to augment its scale (L165 of `dataset.py`). The final model should be in metric of `meters`. If your model is not diagonal normalized and is already in the real-world metric of `meters`, you may want to delete L233 of `dataset.py`. And if your model is much larger or smaller, you may want to adjust the depth range on L226 of `dataset.py`. The parameter `full_rot` indicates whether to train with full SO(3) random rotation sampling as in DiversePose 300 or just a subset of rotations (very small in-plane rotation, positive elevations) as in NOCS REAL275.
+
+Since our method uses an ensemble from both DINO and SHOT features, after exporting the training data, you will need to run both `train_dino.py` and `train_shot.py` to train two separate models, one for visual clues and the other for geometric clues. Again, make sure the path in class `ShapeNetExportDataset` is consistent, and you may want to delete the lines of `blacklists`.
+
+To evaluate your trained model, we provide a sample `demo.py` file to process a video stream of RGB-D frames. Open an issue if you have any questions and we are glad to help!
+
+
+## Evaluation on NOCS REAL275 with pretrained checkpoints
+Please run `eval.py` directly.

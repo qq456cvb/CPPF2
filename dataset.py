@@ -267,7 +267,7 @@ class ShapeNetDirectDataset(torch.utils.data.Dataset):
             
         trans = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]]) @ tr
         bound = bounds[1] - bounds[0]
-        bound[[0, 2]] = bound[[2, 0]]
+        bound[[0, 2]] = bound[[2, 0]]  # flip2nocs, also flip the size
         
         indices = downsample(pc, self.cfg.res)
         pc = pc[indices]
@@ -387,8 +387,8 @@ def dump_data(full_rot=False):
                 pc = d['pc']
                 pc_canon = d['pc_canon']
                 bound = d['bound']
-                # shots = d['shot']
-                # normals = d['normal']
+                shots = d['shot']
+                normals = d['normal']
                 
                 # # rgb[idx] = pc
                 rgb_local, transform = resize_crop(rgb, bbox=Image.fromarray(depth).getbbox(), padding=0.5, out_size=256)
@@ -406,8 +406,8 @@ def dump_data(full_rot=False):
                     'pc_canon': pc_canon[sub_idx],
                     'desc': desc,
                     'bound': bound,
-                    # 'shot': shots[sub_idx],
-                    # 'normal': normals[sub_idx],
+                    'shot': shots[sub_idx],
+                    'normal': normals[sub_idx],
                 }, open('data/category_training_data{}/{}/{:06d}.pkl'.format('_full_rot' if full_rot else None, cfg.category, cnt), 'wb'))
                 cnt += 1
                 tq.update(1)
