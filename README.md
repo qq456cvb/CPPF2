@@ -31,6 +31,7 @@ Empirical evidence demonstrates that our method significantly surpasses previous
 ![teaser](./teaser.gif)
 
 ## Update Logs
+- 2024/06/27 - Add an example for custom object training, also fix a padding issue in training data. Check `train_custom.ipynb` for more details!
 - 2024/06/16 - Uploaded code to reproduce our demo.
 - 2024/06/15 - Our paper is accepted to IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI)!
 - 2024/04/10 - Add data processing scripts to convert PhoCAL or Wild6D into REAL275's format.
@@ -57,7 +58,8 @@ To do so, you need to modify the data path and model names to yours on L192 and 
 
 Since our method uses an ensemble from both DINO and SHOT features, after exporting the training data, you will need to run both `train_dino.py` and `train_shot.py` to train two separate models, one for visual clues and the other for geometric clues. Again, make sure the path in class `ShapeNetExportDataset` is consistent, and you may want to delete the lines of `blacklists`.
 
-To evaluate your trained model, we provide a sample `demo.py` file to process a video stream of RGB-D frames. Open an issue if you have any questions and we are glad to help!
+**We also make a tutorial in train_custom.ipynb**. Open an issue if you have any questions and we are glad to help!
+
 
 
 ## Evaluation on NOCS REAL275 with pretrained checkpoints

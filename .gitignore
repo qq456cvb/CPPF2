@@ -40,20 +40,6 @@ NOCS
 # Temporary file
 *.*~
 
-# Directories
-Algorithm/6dpose/ssd-6d/model/
-Algorithm/6dpose/ssd-6d/data/
-Framework/Open3D/build/
-Framework/Open3D/py3env/
-Algorithm/detect3d/mmdetection3d
-Data/isaac/output/
-Data/generator_app_contrib/data/
-Data/generator_app_contrib/outputs/
-Tools/labelme/build/
-Tools/labelme/label_to_coco/config_files/
-!Tools/labelme/label_to_coco/config_files/template_config.py
-Common/mlflow_env
-
 # # Models & Data
 # !Models/**/info.list
 # Models/**/*
@@ -69,3 +55,6 @@ Common/mlflow_env
 .DS_Store?
 *.swp
 ._*
+
+data/demo_data
+logs

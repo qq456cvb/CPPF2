@@ -1,0 +1,10 @@
+res: 2e-3
+max_epoch: 200
+opt:
+  weight_decay: 0
+  lr: 1e-3
+
+up: [0, 1, 0]
+right: [1, 0, 0]
+front: [0, 0, 1]
+num_more: 3

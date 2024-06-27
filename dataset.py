@@ -390,8 +390,8 @@ def dump_data(full_rot=False):
                 shots = d['shot']
                 normals = d['normal']
                 
-                # # rgb[idx] = pc
-                rgb_local, transform = resize_crop(rgb, bbox=Image.fromarray(depth).getbbox(), padding=0.5, out_size=256)
+                # rgb[idx] = pc
+                rgb_local, transform = resize_crop(rgb, bbox=Image.fromarray(depth).getbbox(), padding=0., out_size=256)
                 
                 # random choose 100 points
                 sub_idx = np.random.choice(np.arange(idxs.shape[0]), 100)
@@ -411,7 +411,6 @@ def dump_data(full_rot=False):
                 }, open('data/category_training_data{}/{}/{:06d}.pkl'.format('_full_rot' if full_rot else None, cfg.category, cnt), 'wb'))
                 cnt += 1
                 tq.update(1)
-                import pdb; pdb.set_trace()
                 
 
 if __name__ == '__main__':

@@ -12,7 +12,10 @@ from tqdm import tqdm
 import cv2
 import pickle
 import os
-from src_shot.build.Release import shot
+try:
+    from src_shot.build.Release import shot
+except:
+    from src_shot.build import shot
 from train_dino import vote_center, vote_rotation, generate_target_pairs
 from train_dino import BeyondCPPF as BeyondCPPFDINO
 from train_shot import BeyondCPPF as BeyondCPPFSHOT
