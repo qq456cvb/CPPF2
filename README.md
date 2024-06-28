@@ -14,11 +14,8 @@ CPPF++: Uncertainty-Aware Sim2Real Object Pose Estimation
 <a href='https://arxiv.org/abs/2211.13398'>
   <img src='https://img.shields.io/badge/Arxiv-PDF-orange?style=flat&logo=arxiv&logoColor=orange' alt='Paper PDF'>
 </a>
-<a href='#'>
+<a href='https://qq456cvb.github.io/projects/cppf++'>
   <img src='https://img.shields.io/badge/Project-Page-green?style=flat&logo=googlechrome&logoColor=green' alt='Project Page'>
-</a>
-<a href='#'>
-<img src='https://img.shields.io/badge/Youtube-Video-red?style=flat&logo=youtube&logoColor=red' alt='Video'/>
 </a>
 <br>
 </h3>
