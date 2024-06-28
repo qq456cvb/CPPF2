@@ -318,7 +318,6 @@ def main(
                 
                 if opt:
                     from lietorch import SO3
-                    # only optimize the translation
                     with torch.enable_grad():
                         opt_trans = torch.nn.Parameter(torch.from_numpy(T_est).cuda().float(), requires_grad=True)
                         delta_rot = torch.tensor([0, 0, 0, 1.], requires_grad=True, device='cuda')
