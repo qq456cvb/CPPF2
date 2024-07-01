@@ -61,3 +61,18 @@ Since our method uses an ensemble from both DINO and SHOT features, after export
 
 ## Evaluation on NOCS REAL275 with pretrained checkpoints
 Please run `eval.py` directly.
+
+## BibTex
+```
+@article{You_2024,
+    title={CPPF++: Uncertainty-Aware Sim2Real Object Pose Estimation by Vote Aggregation},
+    ISSN={1939-3539},
+    url={http://dx.doi.org/10.1109/TPAMI.2024.3419038},
+    DOI={10.1109/tpami.2024.3419038},
+    journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+    publisher={Institute of Electrical and Electronics Engineers (IEEE)},
+    author={You, Yang and He, Wenhao and Liu, Jin and Xiong, Hongkai and Wang, Weiming and Lu, Cewu},
+    year={2024},
+    pages={1–16}
+}
+```
