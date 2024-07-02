@@ -27,6 +27,8 @@ Empirical evidence demonstrates that our method significantly surpasses previous
 ## Results in the Wild (Casual video captured on IPhone 15, no smoothing)
 ![teaser](./teaser.gif)
 
+Also, check our work **[RPMArt](https://r-pmart.github.io/)** on *IROS 2024* that uses CPPF++ to get the pose of articulated objects (e.g., microwaves, drawers).
+
 ## Update Logs
 - 2024/06/27 - Add an example for custom object training, also fix a padding issue in training data. Check `train_custom.ipynb` for more details!
 - 2024/06/16 - Uploaded code to reproduce our demo.
