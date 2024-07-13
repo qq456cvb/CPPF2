@@ -39,6 +39,15 @@ Also, check our work **[RPMArt](https://r-pmart.github.io/)** on *IROS 2024* tha
 - 2024/03/28 - **Huge improvement** on methods! Check our updated Arxiv paper for more details (refresh your browser cache if not updated). CPPF++ has a **much better performance on many datasets** in the wild, e.g., Wild6D, PhoCAL, DiversPose. See code for more details.
 - 2023/09/06 - Major update on methods, check our updated Arxiv paper for more details. Now CPPF++ has a much better performance on both NOCS REAL275 and YCB-Video, **using only synthetic CAD models** for training.
 
+## Installation (SHOT descriptor extraction)
+```
+cd src_shot
+mkdir build
+cd build
+cmake .. -A x64 -DCMAKE_BUILD_TYPE=Relase
+cmake --build . --config Release
+```
+
 ## Code
 - v1.0.0: Major improvement in the method!
   - We use both DINO and SHOT features for an ensemble model, which shows greater performance even than some of the state-of-the-art supervised methods!
