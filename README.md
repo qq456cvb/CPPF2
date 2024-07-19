@@ -24,8 +24,10 @@ CPPF++: Uncertainty-Aware Sim2Real Object Pose Estimation
 Object pose estimation constitutes a critical area within the domain of 3D vision. While contemporary state-of-the-art methods that leverage real-world pose annotations have demonstrated commendable performance, the procurement of such real training data incurs substantial costs. This paper focuses on a specific setting wherein only 3D CAD models are utilized as a priori knowledge, devoid of any background or clutter information. We introduce a novel method, CPPF++, designed for sim-to-real pose estimation. This method builds upon the foundational point-pair voting scheme of CPPF, reformulating it through a probabilistic view. To address the challenge posed by vote collision, we propose a novel approach that involves modeling the voting uncertainty by estimating the probabilistic distribution of each point pair within the canonical space. Furthermore, we augment the contextual information provided by each voting unit through the introduction of $N$-point tuples. To enhance the robustness and accuracy of the model, we incorporate several innovative modules, including noisy pair filtering, online alignment optimization, and a tuple feature ensemble. Alongside these methodological advancements, we introduce a new category-level pose estimation dataset, named DiversePose 300.
 Empirical evidence demonstrates that our method significantly surpasses previous sim-to-real approaches and achieves comparable or superior performance on novel datasets. 
 
-## Results in the Wild (Casual video captured on IPhone 15, no smoothing)
+## Results in the Wild (Casual video captured on IPhone 15, no smoothing, no object mesh required)
 ![teaser](./teaser.gif)
+
+Also, check our work **[RPMArt](https://r-pmart.github.io/)** on *IROS 2024* that uses CPPF++ to get the pose of articulated objects (e.g., microwaves, drawers).
 
 ## Update Logs
 - 2024/06/27 - Add an example for custom object training, also fix a padding issue in training data. Check `train_custom.ipynb` for more details!
@@ -36,6 +38,15 @@ Empirical evidence demonstrates that our method significantly surpasses previous
 - Thanks <a href='https://github.com/dvirginz'>@dvirginz</a> for providing the `Dockerfile` to build `shot.cpp`!
 - 2024/03/28 - **Huge improvement** on methods! Check our updated Arxiv paper for more details (refresh your browser cache if not updated). CPPF++ has a **much better performance on many datasets** in the wild, e.g., Wild6D, PhoCAL, DiversPose. See code for more details.
 - 2023/09/06 - Major update on methods, check our updated Arxiv paper for more details. Now CPPF++ has a much better performance on both NOCS REAL275 and YCB-Video, **using only synthetic CAD models** for training.
+
+## Installation (SHOT descriptor extraction)
+```
+cd src_shot
+mkdir build
+cd build
+cmake .. -A x64 -DCMAKE_BUILD_TYPE=Relase
+cmake --build . --config Release
+```
 
 ## Code
 - v1.0.0: Major improvement in the method!
@@ -61,3 +72,18 @@ Since our method uses an ensemble from both DINO and SHOT features, after export
 
 ## Evaluation on NOCS REAL275 with pretrained checkpoints
 Please run `eval.py` directly.
+
+## BibTex
+```
+@article{You_2024,
+    title={CPPF++: Uncertainty-Aware Sim2Real Object Pose Estimation by Vote Aggregation},
+    ISSN={1939-3539},
+    url={http://dx.doi.org/10.1109/TPAMI.2024.3419038},
+    DOI={10.1109/tpami.2024.3419038},
+    journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+    publisher={Institute of Electrical and Electronics Engineers (IEEE)},
+    author={You, Yang and He, Wenhao and Liu, Jin and Xiong, Hongkai and Wang, Weiming and Lu, Cewu},
+    year={2024},
+    pages={1–16}
+}
+```
