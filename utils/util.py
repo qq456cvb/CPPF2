@@ -2733,7 +2733,9 @@ def work(num_iou_thres, num_degree_thres, num_shift_thres, num_classes,
         pose_pred_matches_worker, pose_pred_scores_worker, pose_gt_matches_worker)
         
 
-def compute_degree_cm_mAP(final_results, synset_names, log_dir, degree_thresholds=[360], shift_thresholds=[100], iou_3d_thresholds=[0.1], iou_pose_thres=0.1, use_matches_for_pose=False):
+def compute_degree_cm_mAP(final_results, synset_names, log_dir, 
+                          degree_thresholds=[360], shift_thresholds=[100], iou_3d_thresholds=[0.1], 
+                          iou_pose_thres=0.1, use_matches_for_pose=False, num_proc=10):
     """Compute Average Precision at a set IoU threshold (default 0.5).
     Returns:
     mAP: Mean Average Precision
@@ -2757,46 +2759,39 @@ def compute_degree_cm_mAP(final_results, synset_names, log_dir, degree_threshold
         assert iou_pose_thres in iou_thres_list
 
     iou_3d_aps = np.zeros((num_classes + 1, num_iou_thres))
-    iou_pred_matches_all = [np.zeros((num_iou_thres, 0)) for _ in range(num_classes)]
-    iou_pred_scores_all  = [np.zeros((num_iou_thres, 0)) for _ in range(num_classes)]
-    iou_gt_matches_all   = [np.zeros((num_iou_thres, 0)) for _ in range(num_classes)]
+    iou_pred_matches_all = [[] for _ in range(num_classes)]
+    iou_pred_scores_all  = [[] for _ in range(num_classes)]
+    iou_gt_matches_all   = [[] for _ in range(num_classes)]
     
     pose_aps = np.zeros((num_classes + 1, num_degree_thres, num_shift_thres))
-    pose_pred_matches_all = [np.zeros((num_degree_thres, num_shift_thres, 0)) for _  in range(num_classes)]
-    pose_gt_matches_all  = [np.zeros((num_degree_thres, num_shift_thres, 0)) for _  in range(num_classes)]
-    pose_pred_scores_all = [np.zeros((num_degree_thres, num_shift_thres, 0)) for _  in range(num_classes)]
+    pose_pred_matches_all = [[] for _  in range(num_classes)]
+    pose_gt_matches_all  = [[] for _  in range(num_classes)]
+    pose_pred_scores_all = [[] for _  in range(num_classes)]
 
-    # loop over results to gather pred matches and gt matches for iou and pose metrics
-    # from tqdm import tqdm
-    # pose_gt_matches = np.full((num_degree_thres, num_shift_thres, len(final_results), 20), -1, dtype=int)
-    # pose_pred_matches = np.full((num_degree_thres, num_shift_thres, len(final_results), 20), -1, dtype=int)
-    
     from tqdm import tqdm
     from functools import partial
     import multiprocessing
-    
-    final_results = [res for res in final_results if len(res['gt_RTs']) > 0]
-    for res in final_results:
-        if 'gt_handle_visibility' not in res:
-            res['gt_handle_visibility'] = np.ones_like(res['gt_class_ids'])
-    
-    pool = Pool(processes=20)
+    pool = Pool(processes=num_proc)
     for worker_res in tqdm(pool.imap_unordered(partial(work, num_iou_thres, num_degree_thres, num_shift_thres, num_classes, 
          synset_names, iou_thres_list, degree_thres_list, shift_thres_list, use_matches_for_pose,
-         iou_pose_thres), final_results, chunksize=10), total=len(final_results)):
-        
-    # for final_res in final_results:
-        # worker_res = work(num_iou_thres, num_degree_thres, num_shift_thres, num_classes,
-                        #   synset_names, iou_thres_list, degree_thres_list, shift_thres_list, use_matches_for_pose,
-                            # iou_pose_thres, final_res)
+         iou_pose_thres), final_results, chunksize=num_proc), total=len(final_results)):
         
         for cls_id in range(1, num_classes):
-            iou_pred_matches_all[cls_id] = np.concatenate((iou_pred_matches_all[cls_id], worker_res[0][cls_id]), -1)
-            iou_pred_scores_all[cls_id] = np.concatenate((iou_pred_scores_all[cls_id], worker_res[1][cls_id]), -1)
-            iou_gt_matches_all[cls_id] = np.concatenate((iou_gt_matches_all[cls_id], worker_res[2][cls_id]), -1)
-            pose_pred_matches_all[cls_id] = np.concatenate((pose_pred_matches_all[cls_id], worker_res[3][cls_id]), -1)
-            pose_pred_scores_all[cls_id] = np.concatenate((pose_pred_scores_all[cls_id], worker_res[4][cls_id]), -1)
-            pose_gt_matches_all[cls_id] = np.concatenate((pose_gt_matches_all[cls_id], worker_res[5][cls_id]), -1)
+            
+            iou_pred_matches_all[cls_id].append(worker_res[0][cls_id])
+            iou_pred_scores_all[cls_id].append(worker_res[1][cls_id])
+            iou_gt_matches_all[cls_id].append(worker_res[2][cls_id])
+            pose_pred_matches_all[cls_id].append(worker_res[3][cls_id])
+            pose_pred_scores_all[cls_id].append(worker_res[4][cls_id])
+            pose_gt_matches_all[cls_id].append(worker_res[5][cls_id])
+            
+    for cls_id in range(1, num_classes):
+        iou_pred_matches_all[cls_id] = np.concatenate(iou_pred_matches_all[cls_id], -1)
+        iou_pred_scores_all[cls_id] = np.concatenate(iou_pred_scores_all[cls_id], -1)
+        iou_gt_matches_all[cls_id] = np.concatenate(iou_gt_matches_all[cls_id], -1)
+        pose_pred_matches_all[cls_id] = np.concatenate(pose_pred_matches_all[cls_id], -1)
+        pose_pred_scores_all[cls_id] = np.concatenate(pose_pred_scores_all[cls_id], -1)
+        pose_gt_matches_all[cls_id] = np.concatenate(pose_gt_matches_all[cls_id], -1)
             
             
     # draw iou 3d AP vs. iou thresholds
