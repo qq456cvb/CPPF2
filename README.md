@@ -27,6 +27,8 @@ Empirical evidence demonstrates that our method significantly surpasses previous
 ## Results in the Wild (Casual video captured on IPhone 15, no smoothing, no object mesh required)
 ![teaser](./teaser.gif)
 
+Check our new object pose benchmark **[PACE](https://github.com/qq456cvb/PACE)** on *ECCV 2024*.
+
 Also, check our work **[RPMArt](https://r-pmart.github.io/)** on *IROS 2024* that uses CPPF++ to get the pose of articulated objects (e.g., microwaves, drawers).
 
 ## Update Logs
