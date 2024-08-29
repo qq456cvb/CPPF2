@@ -49,6 +49,10 @@ cd build
 cmake .. -A x64 -DCMAKE_BUILD_TYPE=Relase
 cmake --build . --config Release
 ```
+Also
+```
+conda create -f environment.yml
+```
 
 ## Code
 - v1.0.0: Major improvement in the method!
