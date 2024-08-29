@@ -1,4 +1,4 @@
-name: assembly
+name: cppf2
 channels:
   - conda-forge
 dependencies:
