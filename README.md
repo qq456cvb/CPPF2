@@ -32,6 +32,7 @@ Check our new object pose benchmark **[PACE](https://github.com/qq456cvb/PACE)**
 Also, check our work **[RPMArt](https://r-pmart.github.io/)** on *IROS 2024* that uses CPPF++ to get the pose of articulated objects (e.g., microwaves, drawers).
 
 ## Update Logs
+- 2025/03/12 - Released DiversePose300 dataset on [Google Drive](https://drive.google.com/file/d/1PXc1wJrCJDdThG4gYoNYDnvuF3V1jejH/view?usp=sharing).
 - 2024/06/27 - Add an example for custom object training, also fix a padding issue in training data. Check `train_custom.ipynb` for more details!
 - 2024/06/16 - Uploaded code to reproduce our demo.
 - 2024/06/15 - Our paper is accepted to IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI)!
@@ -79,6 +80,8 @@ Since our method uses an ensemble from both DINO and SHOT features, after export
 ## Evaluation on NOCS REAL275 with pretrained checkpoints
 Please run `eval.py` directly.
 
+## DiversePose 300
+Our DiversePose 300 dataset is uploaded to [Google Drive](https://drive.google.com/file/d/1PXc1wJrCJDdThG4gYoNYDnvuF3V1jejH/view?usp=sharing). Pose annotations are stored in json files, while we use `convert2ply.py` to convert the rgb and depth images into corresponding 3D point clouds (the space of pose annotations). Notice the point cloud is flipped on y and z axis.
 ## BibTex
 ```
 @article{You_2024,
