@@ -67,21 +67,25 @@ conda create -f environment.yml
   - This implementation is for the legacy method (arxiv v1).
 
 ## Training with your own data
-To train with your own data, you need to first preprocess and export DINO and SHOT features into `pkl` (pickle) files for later training (this is to speed up the training process as computing these features are sometimes slow). 
+
+You can refer to **train_custom.ipynb** for a quick training demo.
+
+-> Below is a detailed breakdown of the training steps:
+
+For a ShapeNet dataset like training, you need to first preprocess and export DINO and SHOT features into `pkl` (pickle) files for later training (this is to speed up the training process as computing these features are sometimes slow). 
 
 To do so, you need to modify the data path and model names to yours on L192 and L212 of class `ShapeNetDirectDataset` in `dataset.py`, and then use `dump_data` function to dump the data. Also, remove transformations related to `flip2nocs` (it was used in NOCS REAL275 evaluation because ShapeNet objects have a different coordinate frame with NOCS objects). Caveat: we assume all the meshes are diagonally normalized (diagonal of bbox set to 1) and use a predefined range of scales to augment its scale (L165 of `dataset.py`). The final model should be in metric of `meters`. If your model is not diagonal normalized and is already in the real-world metric of `meters`, you may want to delete L233 of `dataset.py`. And if your model is much larger or smaller, you may want to adjust the depth range on L226 of `dataset.py`. The parameter `full_rot` indicates whether to train with full SO(3) random rotation sampling as in DiversePose 300 or just a subset of rotations (very small in-plane rotation, positive elevations) as in NOCS REAL275.
 
 Since our method uses an ensemble from both DINO and SHOT features, after exporting the training data, you will need to run both `train_dino.py` and `train_shot.py` to train two separate models, one for visual clues and the other for geometric clues. Again, make sure the path in class `ShapeNetExportDataset` is consistent, and you may want to delete the lines of `blacklists`.
 
-**We also make a tutorial in train_custom.ipynb**. Open an issue if you have any questions and we are glad to help!
-
+Open an issue if you have any questions and we are glad to help!
 
 
 ## Evaluation on NOCS REAL275 with pretrained checkpoints
 Please run `eval.py` directly.
 
 ## DiversePose 300
-Our DiversePose 300 dataset is uploaded to [Google Drive](https://drive.google.com/file/d/1PXc1wJrCJDdThG4gYoNYDnvuF3V1jejH/view?usp=sharing). Pose annotations are stored in json files, while we use `convert2ply.py` to convert the rgb and depth images into corresponding 3D point clouds (the space of pose annotations). Notice the point cloud is flipped on y and z axis.
+Our DiversePose 300 dataset is uploaded to [Google Drive](https://drive.google.com/file/d/1PXc1wJrCJDdThG4gYoNYDnvuF3V1jejH/view?usp=sharing). Pose annotations are stored in json files, while we use `convert2ply.py` to convert the rgb and depth images into corresponding 3D point clouds (the space of pose annotations). Notice the point cloud frame is different from OpenCV's (x' = -x, z' = -z).
 ## BibTex
 ```
 @article{You_2024,
