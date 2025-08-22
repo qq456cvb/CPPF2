@@ -45,6 +45,8 @@ CPPF++ is a novel method for **category-level 6D object pose estimation** that b
 **Casual video captured on iPhone 15 - no smoothing, no object mesh required**
 ![teaser](./teaser.gif)
 
+Check our new object pose benchmark **[PACE](https://github.com/qq456cvb/PACE)** on *ECCV 2024*.
+
 Also, check our work **[RPMArt](https://r-pmart.github.io/)** on *IROS 2024* that uses CPPF++ to get the pose of articulated objects (e.g., microwaves, drawers).
 
 ## 🚀 Quick Start
@@ -137,6 +139,10 @@ Our method uses an ensemble of DINO (visual) and SHOT (geometric) features for o
 ```bash
 # Extract and dump training features (this may take some time)
 python dataset.py
+```
+Also
+```
+conda create -f environment.yml
 ```
 
 ### 2. Train Individual Models
