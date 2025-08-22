@@ -80,15 +80,15 @@ Also, check our work **[RPMArt](https://r-pmart.github.io/)** on *IROS 2024* tha
    mkdir build && cd build
    cmake .. -A x64 -DCMAKE_BUILD_TYPE=Release
    cmake --build . --config Release
-```
+   ```
 
 ### Quick Demo
 
 Try our method on your own videos to generate pose estimation GIFs:
 
-```bash
-    python demo.py --input_video your_video.mp4 --intrinsics_path camera_intrinsics.npy --object_category mug --output_gif result.gif
-```
+   ```bash
+  python demo.py --input_video your_video.mp4 --intrinsics_path camera_intrinsics.npy --object_category mug --output_gif result.gif
+   ```
 
 **Required parameters:**
 - `--input_video`: Path to input video file (e.g., `.mp4`, `.avi`)
