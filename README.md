@@ -121,8 +121,7 @@ Where `fx`, `fy` are focal lengths and `cx`, `cy` are principal point coordinate
 ### Pre-trained Models
 Download our pre-trained checkpoints from the `ckpts/` directory:
 - **DINO model**: Visual feature extraction
-- **SHOT model**: Geometric feature extraction  
-- **Ensemble**: Combined model for best performance
+- **SHOT model**: Geometric feature extraction
 
 ### Evaluate on NOCS REAL275
 ```bash
