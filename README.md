@@ -4,9 +4,8 @@
 
 ### IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI) 2024
 
-[![arXiv](https://img.shields.io/badge/arXiv-2211.13398-b31b1b.svg)](https://arxiv.org/abs/2211.13398)
-[![Project Page](https://img.shields.io/badge/Project-Page-green?style=flat&logo=googlechrome&logoColor=green)](https://qq456cvb.github.io/projects/cppf++)
 [![TPAMI](https://img.shields.io/badge/IEEE-TPAMI-blue?style=flat&logo=ieee&logoColor=white)](http://dx.doi.org/10.1109/TPAMI.2024.3419038)
+[![Project Page](https://img.shields.io/badge/Project-Page-green?style=flat&logo=googlechrome&logoColor=green)](https://qq456cvb.github.io/projects/cppf++)
 
 [Yang You](https://qq456cvb.github.io), Wenhao He, Jin Liu, Hongkai Xiong, Weiming Wang, [Cewu Lu](https://www.mvig.org/)
 
@@ -119,9 +118,9 @@ Where `fx`, `fy` are focal lengths and `cx`, `cy` are principal point coordinate
 ## 📊 Evaluation
 
 ### Pre-trained Models
-Download our pre-trained checkpoints from the `ckpts/` directory:
-- **DINO model**: Visual feature extraction
-- **SHOT model**: Geometric feature extraction
+Pre-trained checkpoints for the NOCS categories are included in the `ckpts/` directory of this repository:
+- **DINO models** (`ckpts/dino/`): Visual feature extraction
+- **SHOT models** (`ckpts/shot/`): Geometric feature extraction
 
 ### Evaluate on NOCS REAL275
 ```bash
@@ -135,13 +134,15 @@ python eval.py
 Our method uses an ensemble of DINO (visual) and SHOT (geometric) features for optimal performance.
 
 ### 1. Prepare Training Data
+
+You can create a conda environment with all training dependencies from the provided spec:
 ```bash
-# Extract and dump training features (this may take some time)
+conda env create -f environment.yml
+```
+
+Then extract and dump the training features (this may take some time):
+```bash
 python dataset.py
-```
-Also
-```
-conda create -f environment.yml
 ```
 
 ### 2. Train Individual Models
@@ -175,8 +176,8 @@ For detailed instructions, see the [Custom Training Section](#-training-with-cus
 ### Data Processing Scripts
 We provide utilities to convert datasets into REAL275 format:
 ```bash
-python utils/wild6d_convert2real275.py
-python utils/phocal_convert2real275.py
+python data/wild6d_convert2real275.py
+python data/phocal_convert2real275.py
 ```
 
 ## 🏗️ Method Overview
