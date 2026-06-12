@@ -62,6 +62,7 @@ def main(
     use_grounded_sam=False,
     geo_branch=True,
     visual_branch=True,
+    mask_dir='data/mrcnn_mask_results/real_test',
 ):
     desc_model = DINOV2().eval().cuda()
     
@@ -74,7 +75,8 @@ def main(
     if use_grounded_sam:
         log_dir = 'NOCS/nocs_output/real_test_groundedfastsam'
     else:
-        log_dir = '/orion/u/yangyou/cppf/SAR-Net/results/NOCS/mrcnn_mask_results/real_test'  # refer SAR-Net for the mask, you can download from https://drive.google.com/file/d/1RwAbFWw2ITX9mXzLUEBjPy_g-MNdyHET/view
+        # Mask-RCNN detection results from SAR-Net, see the README for the download link
+        log_dir = mask_dir
     whitelist = ['can', 'bowl', 'laptop', 'bottle', 'camera', 'mug']
     num_samples = int(4 * np.pi / (angle_tol / 180 * np.pi))
     sphere_pts = np.array(fibonacci_sphere(num_samples), dtype=np.float32)

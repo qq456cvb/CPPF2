@@ -123,11 +123,16 @@ Pre-trained checkpoints for the NOCS categories are included in the `ckpts/` dir
 - **SHOT models** (`ckpts/shot/`): Geometric feature extraction
 
 ### Evaluate on NOCS REAL275
+
+1. **Download the NOCS REAL275 test images** from [the official source](http://download.cs.stanford.edu/orion/nocs/real_test.zip) and extract them so the frames live under `NOCS/real_test/`.
+2. **Download the Mask-RCNN detection results** provided by [SAR-Net](https://github.com/hetolin/SAR-Net) from [Google Drive](https://drive.google.com/file/d/1RwAbFWw2ITX9mXzLUEBjPy_g-MNdyHET/view) and extract the `real_test` folder (containing `results_*.pkl`) to `data/mrcnn_mask_results/real_test`.
+3. Run the evaluation:
 ```bash
 python eval.py
+# or point to a custom mask location:
+python eval.py --mask_dir /path/to/mrcnn_mask_results/real_test
 ```
-
-*Note: You'll need Mask-RCNN masks from [SAR-Net](https://github.com/hetolin/SAR-Net) for evaluation.*
+Predictions are written to `NOCS/nocs_output/` and mAP curves are printed at the end.
 
 ## 🔧 Training
 
@@ -138,12 +143,20 @@ Our method uses an ensemble of DINO (visual) and SHOT (geometric) features for o
 You can create a conda environment with all training dependencies from the provided spec:
 ```bash
 conda env create -f environment.yml
+conda activate cppf2
 ```
 
-Then extract and dump the training features (this may take some time):
+Training data is rendered on the fly from **[ShapeNet v2](https://shapenet.org/)** CAD models, so you need to download ShapeNetCore.v2 first (only the six NOCS categories are used: bottle, bowl, camera, can, laptop, mug). Place (or symlink) it at `data/ShapeNetCore.v2`, or point `shapenet_root` in `config/config.yaml` to its location:
+```yaml
+# config/config.yaml
+shapenet_root: /path/to/ShapeNetCore.v2
+```
+
+Then render the synthetic views and dump training features (RGB-D renderings, DINO descriptors, SHOT features) for all six categories:
 ```bash
 python dataset.py
 ```
+This writes ~100 samples per object to `data/category_training_data/<category_id>/` and may take several hours. It requires a GPU (for DINOv2 feature extraction) and an EGL-capable machine (for headless pyrender rendering).
 
 ### 2. Train Individual Models
 ```bash
@@ -171,7 +184,7 @@ For detailed instructions, see the [Custom Training Section](#-training-with-cus
 - **YCB-Video**: Instance-level object pose dataset  
 - **Wild6D**: In-the-wild pose estimation
 - **PhoCAL**: Photorealistic object dataset
-- **DiversePose 300**: Our new diverse pose dataset
+- **DiversePose 300**: Our new diverse pose dataset, download from [Hugging Face](https://huggingface.co/datasets/qq456cvb/DiversePose300) or [Google Drive](https://drive.google.com/file/d/1PXc1wJrCJDdThG4gYoNYDnvuF3V1jejH/view)
 
 ### Data Processing Scripts
 We provide utilities to convert datasets into REAL275 format:

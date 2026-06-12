@@ -209,7 +209,8 @@ class ShapeNetDirectDataset(torch.utils.data.Dataset):
         if self.r is None:
             self.r = OffscreenRenderer(viewport_width=640, viewport_height=480)
         shapenet_cls, mesh_name = model_name.split('/')
-        path = f'/orion/group/ShapeNetCore.v2/{shapenet_cls}/{mesh_name}/models/model_normalized.obj'
+        shapenet_root = self.cfg.get('shapenet_root', 'data/ShapeNetCore.v2')
+        path = f'{shapenet_root}/{shapenet_cls}/{mesh_name}/models/model_normalized.obj'
         mesh = trimesh.load(path)
         obj_scale = shapenet_obj_scales[f'{shapenet_cls}']
         mesh_pose = np.eye(4)
@@ -346,7 +347,8 @@ class ShapeNetExportDataset(torch.utils.data.Dataset):
         self.root = hydra.utils.to_absolute_path('data/category_training_data{}/{}'.format('_full_rot' if full_rot else '', cfg.category))
         model_names = open(hydra.utils.to_absolute_path('data/shapenet_train.txt')).read().splitlines() + open(hydra.utils.to_absolute_path('data/shapenet_val.txt')).read().splitlines()
         self.model_names = [line.split()[1] for line in model_names if int(line.split()[0]) == cfg.category]
-        self.blacklists = open(hydra.utils.to_absolute_path('data/blacklists.txt')).read().splitlines()
+        blacklist_path = hydra.utils.to_absolute_path('data/blacklists.txt')
+        self.blacklists = open(blacklist_path).read().splitlines() if os.path.exists(blacklist_path) else []
         self.blacklist_idxs = [self.model_names.index(name) for name in self.blacklists if name in self.model_names]
         self.candidate_idxs = list(set(range(len(self.model_names))) - set(self.blacklist_idxs))
         # if cfg.category == 5:
@@ -377,8 +379,8 @@ def dump_data(full_rot=False):
         torch.set_grad_enabled(False)
         cnt = 0
         tq = tqdm(total=len(ds) * 100)
-        if not Path('data/category_training_data{}/{}'.format('_full_rot' if full_rot else None, cfg.category)).exists():
-            os.makedirs('data/category_training_data{}/{}'.format('_full_rot' if full_rot else None, cfg.category))
+        if not Path('data/category_training_data{}/{}'.format('_full_rot' if full_rot else '', cfg.category)).exists():
+            os.makedirs('data/category_training_data{}/{}'.format('_full_rot' if full_rot else '', cfg.category))
         for _ in range(100):
             for d in ds:
                 rgb = d['rgb']
@@ -408,7 +410,7 @@ def dump_data(full_rot=False):
                     'bound': bound,
                     'shot': shots[sub_idx],
                     'normal': normals[sub_idx],
-                }, open('data/category_training_data{}/{}/{:06d}.pkl'.format('_full_rot' if full_rot else None, cfg.category, cnt), 'wb'))
+                }, open('data/category_training_data{}/{}/{:06d}.pkl'.format('_full_rot' if full_rot else '', cfg.category, cnt), 'wb'))
                 cnt += 1
                 tq.update(1)
                 

@@ -191,4 +191,3 @@ dependencies:
       - widgetsnbextension==4.0.13
       - yarl==1.9.4
       - zipp==3.20.1
-prefix: /orion/u/yangyou/miniconda3/envs/assembly
